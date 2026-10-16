@@ -1,568 +1,203 @@
-/*!
- * V8 LOADER v3 — conecta qualquer site ao V8 Admin Universal.
- *
- * USO MÍNIMO (antes de </body>):
- *   <script src="js/v8-loader.js" data-project-id="ID_DO_PROJETO"></script>
- *
- * Também aceita data-v8-project / data-project-id no <html> ou <body>.
- * Opcional no <script>: data-api-url="https://outro-worker..." (ou data-api),
- * data-style="off" (não injeta o CSS do catálogo/avaliações),
- * data-v8-scripts="off" (NÃO injeta scripts.head/body/footer; por padrão injeta).
- *
- * COMPATÍVEL COM O LOADER ANTIGO: campo vazio some (display:none); <a data-v8>
- * só troca o href (texto do botão fica); <iframe data-v8-video hidden> recebe
- * o src; galeria usa .v8-gallery-item; <form data-v8-form> com Formspree
- * envia nativamente e copia o lead pro painel.
- *
- * TEXTO / LINKS
- *   data-v8="contact.whatsapp"      texto do campo; em <a> define o href (wa.me/mailto/tel/URL)
- *   data-v8-text="true"             (em <a>) troca também o texto do link pelo valor
- *   data-v8-href="social.instagram" define href
- *   data-v8-src="seo.ogImage"       define src
- *   data-v8-attr="content:seo.title" define qualquer atributo
- *   data-v8-show="contact.email"    esconde o elemento se o campo estiver vazio
- *   Caminhos: contact.* social.* content.* location.* seo.* media.* name siteUrl ...
- *
- * MÍDIA
- *   <div data-v8-gallery></div>      galeria (media.galleryImages)
- *   <div data-v8-video></div>        vídeo YouTube/Vimeo/mp4 (media.video)
- *   <div data-v8-maps-embed></div>   mapa (location.embed ou mapsUrl)
- *   <div data-v8-reviews></div>      avaliações do Google (data-limit="3")
- *
- * FORMULÁRIO → LEADS
- *   <form data-v8-form> com campos name, email, phone, message.
- *   Com Formspree no painel: envio nativo + cópia do lead (como antes).
- *   Sem Formspree (ou data-v8-ajax="true"): envia por AJAX e mostra mensagem.
- *   Eventos: v8:lead-sent / v8:lead-error. Atributos: data-success="Texto".
- *
- * CATÁLOGO (categorias, subcategorias e tags)
- *   <div data-v8-catalog></div>
- *   data-layout="vitrine"      uma seção por categoria (subcategorias dentro), como no painel
- *   data-filters="true"        abas de categoria/subcategoria (layout grade) + filtro por tag
- *   data-search="true"         campo de busca (nome, descrição, tag, categoria)
- *   data-others-label="Outros" título da seção dos itens sem categoria (vitrine)
- *   data-category="Nome|id"    limita a uma categoria (inclui subcategorias)
- *   data-tag="Nome|id"  data-type="service"  data-featured="true"  data-limit="6"
- *   data-cta="whatsapp"        botão que abre o WhatsApp com o nome do item
- *   data-cta="pay"             botão "Pagar agora" (Pix/cartão); aceita lista: "whatsapp,pay"
- *   data-pay-label="Comprar"   texto do botão de pagar
- *   data-cta-label="Pedir orçamento"
- *
- * PAGAMENTO (InfinitePay / Mercado Pago, configurados na aba Pagamentos do painel)
- *   <button data-v8-pay="ID_DO_ITEM">Pagar</button>   cria a cobrança (valor vem do catálogo)
- *   e leva o cliente ao checkout. Opcionais: data-qty="2" data-provider="infinitepay"
- *   data-redirect="https://.../obrigado" data-form="#meuForm" (pega nome/e-mail/telefone).
- *   O botão some se nenhum provedor estiver ativo. Eventos: v8:pay-started / v8:pay-error.
- *
- * LOJA PRÓPRIA (site com carrinho próprio): <script src="v8-loader.js" data-project-id="ID" data-catalog="true">
- *   carrega o catálogo sem desenhar nada; use V8.ready.then(...) e V8.catalog / V8.config.ecommerce.
- *
- * JS: window.V8 = { ready, config, catalog, field(path), formatMoney(n), reload() }
- *     evento document "v8:ready" e "v8:catalog".
- */
-(function () {
-  "use strict";
-  if (window.V8 && window.V8.__v3) return;
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Catálogo Universal | V8</title>
+  <meta name="description" content="Catálogo digital personalizável para produtos, cardápios e serviços, integrado ao V8 Admin Universal.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#f5f7fb;--surface:#fff;--ink:#172033;--muted:#687386;--line:#e5e9f1;--brand:#176b55;--brand2:#0f4f40;--accent:#d6a84f;--radius:20px;--shadow:0 12px 36px rgba(20,32,52,.08)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Plus Jakarta Sans",system-ui,sans-serif}button,input{font:inherit}button,a{-webkit-tap-highlight-color:transparent}a{color:inherit;text-decoration:none}.container{width:min(1180px,calc(100% - 36px));margin:auto}
+    .topbar{background:#101827;color:#dce5f1;font-size:.78rem}.topbar .container{min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .header{background:rgba(255,255,255,.96);position:sticky;top:0;z-index:10;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}.header-main{min-height:82px;display:grid;grid-template-columns:auto minmax(180px,1fr) auto;align-items:center;gap:24px}.brand{font-size:1.2rem;font-weight:800;letter-spacing:-.04em;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.brand span{color:var(--brand)}.search{display:flex;max-width:600px;width:100%;background:#f3f5f8;border:1px solid #e7ebf2;border-radius:12px;overflow:hidden}.search input{min-width:0;flex:1;padding:13px 15px;background:transparent;border:0;outline:0}.search button{border:0;background:transparent;padding:0 16px;cursor:pointer;font-size:1.25rem}.cart-button{display:flex;align-items:center;gap:9px;border:0;background:var(--brand);color:#fff;border-radius:12px;padding:12px 15px;font-weight:700;cursor:pointer;white-space:nowrap}.cart-count{display:inline-grid;place-items:center;min-width:22px;height:22px;border-radius:50%;background:#fff;color:var(--brand);font-size:.75rem}
+    .nav{border-top:1px solid #f0f2f6}.nav-inner{display:flex;gap:8px;overflow:auto;padding:11px 0;scrollbar-width:thin}.category-btn{border:1px solid var(--line);border-radius:999px;background:#fff;padding:9px 15px;white-space:nowrap;color:#4c5668;cursor:pointer;font-size:.84rem;font-weight:600}.category-btn.active,.category-btn:hover{background:var(--brand);border-color:var(--brand);color:white}
+    .hero{padding:48px 0 42px;background:radial-gradient(ellipse at 85% 10%,rgba(214,168,79,.18),transparent 34%),linear-gradient(120deg,#101827,#1b3440);color:#fff}.hero-inner{display:grid;grid-template-columns:1.2fr .8fr;gap:30px;align-items:center;min-height:220px}.eyebrow{font-size:.72rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}.hero h1{font-size:clamp(2rem,5vw,3.65rem);line-height:1.06;letter-spacing:-.055em;margin:13px 0}.hero h1 span{color:#e4bd70}.hero p{max-width:600px;color:#c8d2dd;line-height:1.7;margin:0 0 24px}.btn{border:0;border-radius:12px;padding:13px 19px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;gap:8px;cursor:pointer}.btn-primary{background:var(--accent);color:#1c2531}.btn-secondary{background:#eef3f2;color:var(--brand)}.hero-note{justify-self:end;border:1px solid rgba(255,255,255,.16);border-radius:24px;padding:24px;background:rgba(255,255,255,.06);width:min(100%,300px)}.hero-note strong{display:block;font-size:1.1rem;margin-bottom:8px}.hero-note p{font-size:.86rem;margin:0}
+    .benefits{background:#fff;border-bottom:1px solid var(--line)}.benefits-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:15px;padding:20px 0}.benefit{display:flex;gap:11px;align-items:center}.benefit-icon{width:38px;height:38px;border-radius:12px;background:#eaf4f0;display:grid;place-items:center;color:var(--brand);font-weight:800;flex-shrink:0}.benefit b,.benefit small{display:block}.benefit b{font-size:.84rem}.benefit small{font-size:.74rem;color:var(--muted);margin-top:3px}
+    .section{padding:42px 0 64px}.section-head{display:flex;justify-content:space-between;align-items:end;gap:15px;margin-bottom:22px}.section-head h2{font-size:clamp(1.6rem,3vw,2.2rem);letter-spacing:-.045em;margin:7px 0 0}.result-count{font-size:.84rem;color:var(--muted)}.products{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px}.product{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;box-shadow:0 5px 18px rgba(20,32,52,.025);display:flex;flex-direction:column;min-width:0;transition:transform .18s,box-shadow .18s}.product:hover{transform:translateY(-3px);box-shadow:var(--shadow)}.product-media{aspect-ratio:4/3;background:#eef1f5;position:relative;display:grid;place-items:center;overflow:hidden;cursor:pointer}.product-media img{width:100%;height:100%;object-fit:cover}.placeholder{font-size:2.5rem;color:#a3adbc}.badge-row{position:absolute;top:12px;left:12px;display:flex;gap:5px;flex-wrap:wrap}.badge{background:#fff;color:var(--brand);border-radius:7px;padding:5px 8px;font-size:.65rem;font-weight:800;box-shadow:0 3px 10px #00000010}.badge.sale{color:#a34b28}.product-body{padding:16px;display:flex;flex-direction:column;gap:8px;flex:1}.product-category{font-size:.7rem;color:var(--muted)}.product h3{font-size:1rem;line-height:1.4;margin:0;cursor:pointer}.product-description{font-size:.82rem;line-height:1.55;color:var(--muted);margin:0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.product-bottom{margin-top:auto;padding-top:7px}.price{font-size:1.18rem;font-weight:800;letter-spacing:-.03em}.price.muted{font-size:.9rem;color:var(--muted);letter-spacing:0}.product-actions{display:flex;gap:8px;margin-top:12px}.product-actions button{flex:1;padding:10px 8px;font-size:.78rem}.empty,.loading{grid-column:1/-1;text-align:center;padding:50px 20px;color:var(--muted);background:#fff;border:1px dashed var(--line);border-radius:18px}
+    .footer{background:#101827;color:#fff;padding:35px 0}.footer-row{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:25px}.footer strong{font-size:1.1rem}.footer p,.footer small{color:#aeb9c8;font-size:.82rem;line-height:1.6}.footer-label{display:block;color:#aeb9c8;font-size:.75rem;margin-bottom:8px}.footer a{display:block;margin:6px 0}.footer small{display:block;margin-top:14px}.whatsapp-float{position:fixed;right:20px;bottom:20px;z-index:20;background:#1dbb68;color:white;border-radius:50px;padding:15px 19px;font-weight:800;box-shadow:0 10px 28px #0b573a40}
+    .overlay{position:fixed;inset:0;background:rgba(10,18,30,.48);z-index:29}.drawer{position:fixed;z-index:30;right:0;top:0;height:100dvh;width:min(440px,100%);background:#fff;display:flex;flex-direction:column;box-shadow:-10px 0 35px #0002}.drawer[hidden],.overlay[hidden],dialog[hidden]{display:none}.drawer-head{display:flex;align-items:center;justify-content:space-between;padding:20px;border-bottom:1px solid var(--line)}.drawer-head h2{margin:0;font-size:1.2rem}.icon-button{border:0;background:#f0f2f5;border-radius:10px;width:38px;height:38px;font-size:1.4rem;cursor:pointer}.cart-items{padding:14px 20px;overflow:auto;flex:1}.cart-item{display:grid;grid-template-columns:64px 1fr auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}.cart-thumb{width:64px;height:64px;object-fit:cover;border-radius:10px;background:#f1f3f6}.cart-item h3{font-size:.85rem;margin:0 0 5px}.cart-item small{color:var(--muted)}.qty{display:flex;align-items:center;gap:8px;margin-top:8px}.qty button{width:25px;height:25px;border:1px solid var(--line);background:white;border-radius:7px;cursor:pointer}.remove{border:0;background:transparent;color:#a34b28;cursor:pointer}.cart-footer{padding:20px;border-top:1px solid var(--line)}.cart-total{display:flex;justify-content:space-between;margin-bottom:16px}.cart-total strong{font-size:1.2rem}.cart-footer .btn{width:100%}.note{font-size:.75rem;color:var(--muted);line-height:1.5;margin-bottom:0}
+    .product-dialog{border:0;border-radius:20px;padding:0;width:min(760px,calc(100% - 28px));max-width:none;box-shadow:0 25px 90px #0004}.product-dialog::backdrop{background:#0a121eaa}.dialog-inner{display:grid;grid-template-columns:1fr 1fr}.dialog-media{background:#eef1f5;min-height:300px}.dialog-media img{width:100%;height:100%;object-fit:cover;max-height:500px}.dialog-content{padding:28px;position:relative}.dialog-close{position:absolute;right:14px;top:14px;border:0;background:#eef1f5;width:36px;height:36px;border-radius:50%;font-size:1.4rem;cursor:pointer}.dialog-content h2{font-size:1.6rem;line-height:1.2;margin:12px 30px 12px 0}.dialog-content p{color:var(--muted);line-height:1.7}.dialog-content .price{margin:20px 0}.dialog-content .btn{width:100%}
+    @media(max-width:900px){.products{grid-template-columns:repeat(3,minmax(0,1fr))}.benefits-grid{grid-template-columns:repeat(2,1fr)}.hero-inner{grid-template-columns:1fr .6fr}.hero-note{padding:18px}}
+    @media(max-width:640px){.container{width:min(100% - 26px,1180px)}.topbar .container{min-height:32px;font-size:.68rem}.header-main{min-height:auto;padding:13px 0;grid-template-columns:1fr auto;gap:12px}.brand{font-size:1rem;max-width:calc(100vw - 150px)}.search{grid-column:1/-1;grid-row:2;max-width:none}.cart-button{padding:10px 11px;font-size:.78rem}.hero{padding:34px 0}.hero-inner{grid-template-columns:1fr;min-height:0}.hero h1{font-size:2.35rem}.hero-note{display:none}.benefits-grid{gap:15px 10px;padding:17px 0}.benefit{align-items:flex-start;gap:8px}.benefit-icon{width:32px;height:32px;border-radius:10px;font-size:.8rem}.benefit b{font-size:.75rem}.benefit small{font-size:.68rem}.section{padding:32px 0 48px}.section-head{align-items:start;flex-direction:column;margin-bottom:17px}.products{grid-template-columns:repeat(2,minmax(0,1fr));gap:11px}.product{border-radius:15px}.product-body{padding:11px;gap:7px}.product h3{font-size:.85rem}.product-description{font-size:.74rem}.price{font-size:1rem}.product-actions{gap:6px;flex-direction:column}.product-actions button{padding:9px 6px}.product-media{aspect-ratio:1/1}.badge-row{top:7px;left:7px}.badge{font-size:.58rem;padding:4px 6px}.footer-row{grid-template-columns:1fr 1fr}.footer-row>div:first-child{grid-column:1/-1}.whatsapp-float{right:12px;bottom:12px;padding:13px 15px;font-size:.83rem}.dialog-inner{grid-template-columns:1fr}.dialog-media{min-height:220px;max-height:260px}.dialog-content{padding:22px}.dialog-content h2{font-size:1.3rem}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+  </style>
+</head>
+<body>
+  <div class="topbar"><div class="container"><span data-v8="content.name">Catálogo Digital V8</span><span data-v8="content.headline">Conheça nossas opções e fale conosco</span></div></div>
+  <header class="header">
+    <div class="container header-main">
+      <a class="brand" href="./" aria-label="Página inicial"><span id="brandName">Catálogo</span></a>
+      <form class="search" id="searchForm" role="search"><input id="search" type="search" placeholder="O que você procura?" aria-label="Buscar produtos"><button type="submit" aria-label="Buscar">⌕</button></form>
+      <button class="cart-button" id="openCart" type="button">🛒 <span>Carrinho</span><strong class="cart-count" id="cartCount">0</strong></button>
+    </div>
+    <nav class="nav" aria-label="Categorias"><div class="container nav-inner" id="categories"><button class="category-btn active" data-category="">Todos</button></div></nav>
+  </header>
 
-  var DEFAULT_API = "https://v8adminuniversal.aisermelk.workers.dev";
-  var script = document.currentScript || document.querySelector("script[src*='v8-loader']");
-  var root = document.documentElement, body = document.body;
+  <main>
+    <section class="hero">
+      <div class="container hero-inner">
+        <div>
+          <span class="eyebrow" id="heroEyebrow">CATÁLOGO DIGITAL</span>
+          <h1 id="heroTitle">Encontre o que você<br><span>está procurando.</span></h1>
+          <p id="heroDescription" data-v8="content.description">Explore nosso catálogo e entre em contato pelo WhatsApp.</p>
+          <a href="#produtos" class="btn btn-primary">Explorar produtos <span aria-hidden="true">→</span></a>
+        </div>
+        <aside class="hero-note"><strong>Um jeito fácil de comprar</strong><p>Confira os produtos, adicione ao carrinho e envie seu pedido pelo WhatsApp.</p></aside>
+      </div>
+    </section>
+    <section class="benefits"><div class="container benefits-grid">
+      <div class="benefit"><span class="benefit-icon">✓</span><div><b>Catálogo organizado</b><small>Items por categoria</small></div></div>
+      <div class="benefit"><span class="benefit-icon">⌕</span><div><b>Busca rápida</b><small>Encontre o que precisa</small></div></div>
+      <div class="benefit"><span class="benefit-icon">☏</span><div><b>Atendimento direto</b><small>Pedido pelo WhatsApp</small></div></div>
+      <div class="benefit"><span class="benefit-icon">♡</span><div><b>Feito para celular</b><small>Navegação simples e rápida</small></div></div>
+    </div></section>
+    <section class="section" id="produtos">
+      <div class="container">
+        <div class="section-head"><div><span class="eyebrow">VITRINE</span><h2 id="listTitle">Nossos produtos</h2></div><span id="resultCount" class="result-count">Carregando catálogo…</span></div>
+        <div id="products" class="products"><div class="loading">Carregando catálogo...</div></div>
+      </div>
+    </section>
+  </main>
 
-  function attr(el, name) { return el && el.getAttribute ? (el.getAttribute(name) || "").trim() : ""; }
-  var PROJECT_ID = attr(script, "data-project-id") || attr(script, "data-v8-project") ||
-    attr(root, "data-project-id") || attr(root, "data-v8-project") ||
-    attr(body, "data-project-id") || attr(body, "data-v8-project") ||
-    ((document.querySelector("[data-project-id]") || {}).getAttribute ? attr(document.querySelector("[data-project-id]"), "data-project-id") : "");
-  var API = (attr(script, "data-api-url") || attr(script, "data-api") || DEFAULT_API).replace(/\/+$/, "");
-  var STYLE_ON = attr(script, "data-style") !== "off";
-  var WANT_CATALOG = attr(script, "data-catalog") === "true";
-  var SCRIPTS_ON = ["off", "false"].indexOf(attr(script, "data-v8-scripts")) < 0;
+  <footer class="footer"><div class="container footer-row">
+    <div><strong id="footerName">Catálogo Digital V8</strong><p id="footerDescription">Conheça nossos produtos ou serviços e fale com nossa equipe.</p></div>
+    <div><span class="footer-label">Atendimento</span><a data-v8="contact.whatsapp" target="_blank" rel="noopener noreferrer">WhatsApp</a><a data-v8="contact.email" target="_blank" rel="noopener noreferrer">E-mail</a><a data-v8="contact.phone" target="_blank" rel="noopener noreferrer">Telefone</a></div>
+    <div><span class="footer-label">Redes sociais</span><a data-v8-href="social.instagram" data-v8-show="social.instagram" target="_blank" rel="noopener noreferrer">Instagram</a><a data-v8-href="social.facebook" data-v8-show="social.facebook" target="_blank" rel="noopener noreferrer">Facebook</a><small>© <span id="year"></span> <span id="copyrightName">Catálogo Digital V8</span></small></div>
+  </div></footer>
+  <a class="whatsapp-float" id="whatsappFloat" data-v8-href="contact.whatsapp" target="_blank" rel="noopener noreferrer" aria-label="Falar pelo WhatsApp" hidden>☏ Fale conosco</a>
 
-  var state = { config: null, catalog: null, reviews: null };
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Carrinho de compras" hidden>
+    <div class="drawer-head"><h2>Seu carrinho</h2><button class="icon-button" id="closeCart" aria-label="Fechar carrinho">×</button></div>
+    <div id="cartItems" class="cart-items"><p class="empty">Seu carrinho está vazio.</p></div>
+    <div class="cart-footer"><div class="cart-total"><span>Total estimado</span><strong id="cartTotal">R$ 0,00</strong></div><button id="checkout" class="btn btn-primary" type="button">Finalizar pelo WhatsApp</button><p class="note">O pedido será enviado para confirmação. Valores e disponibilidade devem ser confirmados com o atendimento.</p></div>
+  </aside>
 
-  /* ---------- utilidades ---------- */
-  function esc(v) {
-    return String(v == null ? "" : v).replace(/[&<>"']/g, function (c) {
-      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
-    });
-  }
-  function get(obj, path) {
-    return String(path || "").split(".").reduce(function (o, k) { return o != null ? o[k] : undefined; }, obj);
-  }
-  function field(path) { return get(state.config || {}, path); }
-  function qsa(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
-  function formatMoney(n) {
-    return Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  }
-  function digits(v) { return String(v || "").replace(/\D/g, ""); }
-  function safeUrl(u) {
-    u = String(u || "").trim();
-    if (!u) return "";
-    if (/^(https?:|mailto:|tel:|\/|\.\/|\.\.\/|#)/i.test(u)) return u;
-    if (/^[\w.-]+\.[a-z]{2,}(\/|$)/i.test(u)) return "https://" + u;
-    return "";
-  }
-  function waLink(number, text) {
-    var d = digits(number);
-    if (!d) return "";
-    if (d.length <= 11) d = "55" + d;
-    return "https://wa.me/" + d + (text ? "?text=" + encodeURIComponent(text) : "");
-  }
-  function request(path, options) {
-    return fetch(API + path, options).then(function (r) {
-      return r.json().catch(function () { return { success: false, error: "Erro " + r.status }; });
-    });
-  }
-  function unwrapProject(data) {
-    if (!data) return null;
-    if (data.project && typeof data.project === "object") return data.project;
-    if (data.data && data.data.project) return data.data.project;
-    return data.id ? data : null;
-  }
-  function fire(name, detail) {
-    try { document.dispatchEvent(new CustomEvent(name, { detail: detail })); } catch (e) {}
-  }
-  function injectStyle() {
-    if (!STYLE_ON || document.getElementById("v8-loader-style")) return;
-    var css = ".v8-reviews{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}.v8-review{border:1px solid rgba(128,128,128,.3);border-radius:12px;padding:16px}.v8-stars{color:#f5a623}" +
-      ".v8-filters{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 12px}.v8-filters button{border:1px solid rgba(128,128,128,.4);background:transparent;color:inherit;padding:7px 14px;border-radius:999px;cursor:pointer;font:inherit}.v8-filters button.active{background:currentColor}.v8-filters button.active span{color:#fff;mix-blend-mode:difference}" +
-      ".v8-catalog-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px}.v8-card{border:1px solid rgba(128,128,128,.3);border-radius:14px;overflow:hidden;display:flex;flex-direction:column}.v8-card-media{aspect-ratio:4/3;background:rgba(128,128,128,.12);display:grid;place-items:center}.v8-card-media img{width:100%;height:100%;object-fit:cover}" +
-      ".v8-card-body{padding:14px;display:flex;flex-direction:column;gap:6px;flex:1}.v8-card-body h3{margin:0;font-size:1.05em}.v8-card-body p{margin:0;opacity:.75;font-size:.92em}.v8-price{font-weight:700}.v8-badge{font-size:.72em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;margin-right:4px}.v8-tags{display:flex;gap:6px;flex-wrap:wrap}.v8-tag{font-size:.78em;opacity:.7}.v8-cta{margin-top:auto;display:inline-block;text-align:center;padding:10px 14px;border-radius:10px;border:1px solid currentColor;text-decoration:none;color:inherit}" +
-      ".v8-form-msg{margin-top:10px;font-size:.92em}" +
-      ".v8-search-input{width:100%;max-width:420px;box-sizing:border-box;padding:10px 14px;margin:0 0 12px;border:1px solid rgba(128,128,128,.4);border-radius:10px;background:transparent;color:inherit;font:inherit}" +
-      ".v8-vitrine-section{margin:0 0 36px}.v8-vitrine-title{margin:0 0 16px;padding-bottom:10px;border-bottom:1px solid rgba(128,128,128,.3)}.v8-vitrine-sub{margin:20px 0 0}.v8-vitrine-subtitle{margin:0 0 12px;opacity:.8;font-size:1.05em}.v8-empty{opacity:.7}";
-    var st = document.createElement("style"); st.id = "v8-loader-style"; st.textContent = css; document.head.appendChild(st);
-  }
+  <dialog id="productDialog" class="product-dialog" aria-label="Detalhes do produto">
+    <button class="dialog-close" id="closeProduct" aria-label="Fechar">×</button><div id="productDetail"></div>
+  </dialog>
 
-  /* ---------- config: texto, links, SEO, tracking ---------- */
-  var SOCIAL_BASE = { instagram: "https://instagram.com/", tiktok: "https://tiktok.com/@", facebook: "https://facebook.com/" };
-  function toHref(path, value) {
-    var v = String(value || "").trim();
-    if (!v) return "";
-    if (/(^|\.)whatsapp$/.test(path)) return waLink(v);
-    if (/(^|\.)email$/.test(path)) return "mailto:" + v;
-    if (/(^|\.)phone$/.test(path)) return "tel:" + digits(v);
-    var net = path.indexOf("social.") === 0 ? path.slice(7) : "";
-    if (net && SOCIAL_BASE[net] && !/^(https?:)?\/\//i.test(v)) {
-      if (/^(www\.|m\.)?(instagram|tiktok|facebook|fb)\.[a-z.]+\//i.test(v)) return "https://" + v;
-      if (v.indexOf("/") < 0) return SOCIAL_BASE[net] + v.replace(/^@/, ""); // só o @usuario
+  <!-- CATÁLOGO UNIVERSAL V8: configure o ID do projeto no V8 Admin Universal. Reutiliza o loader/API existentes; não cria painel nem banco paralelo. -->
+  <script src="js/v8-loader.js" data-project-id="SEU_PROJECT_ID" data-catalog="true" defer></script>
+  <script>
+  (function(){
+    "use strict";
+    const $ = s => document.querySelector(s);
+    const esc = v => String(v == null ? "" : v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+    const money = n => Number(n || 0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+    let products = [], categories = [], config = {}, activeCategory = "", query = "", cart = [];
+    const cfgGet = path => path.split(".").reduce((o,k)=>o == null ? undefined : o[k], config);
+    const digits = v => String(v || "").replace(/\D/g,"");
+    function whatsappUrl(message){
+      let number = digits(cfgGet("contact.whatsapp"));
+      if(!number) return "";
+      if(number.length <= 11) number = "55" + number;
+      return "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
     }
-    return safeUrl(v);
-  }
-  function bindFields(cfg) {
-    qsa("[data-v8]").forEach(function (el) {
-      var path = attr(el, "data-v8"), val = get(cfg, path);
-      // Igual ao loader antigo: campo vazio no painel some da tela.
-      if (val == null || val === "" || val === false) { el.style.display = "none"; return; }
-      if (typeof val === "object") return;
-      el.style.display = el.style.display === "none" ? "" : el.style.display;
-      if (el.tagName === "A") {
-        var href = toHref(path, val); if (href) el.setAttribute("href", href);
-        // O texto do link é preservado (ex.: "Falar no WhatsApp"). Use data-v8-text="true" para trocar pelo valor.
-        if (attr(el, "data-v8-text") === "true") el.textContent = String(val);
-      } else if (el.tagName === "IMG") {
-        el.setAttribute("src", safeUrl(val));
-      } else if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
-        el.value = String(val);
-      } else {
-        el.textContent = String(val);
-      }
-    });
-    qsa("[data-v8-href]").forEach(function (el) {
-      var p = attr(el, "data-v8-href"), h = toHref(p, get(cfg, p)); if (h) el.setAttribute("href", h);
-    });
-    qsa("[data-v8-src]").forEach(function (el) {
-      var u = safeUrl(get(cfg, attr(el, "data-v8-src"))); if (u) el.setAttribute("src", u);
-    });
-    qsa("[data-v8-attr]").forEach(function (el) {
-      attr(el, "data-v8-attr").split(",").forEach(function (pair) {
-        var i = pair.indexOf(":"); if (i < 1) return;
-        var a = pair.slice(0, i).trim(), p = pair.slice(i + 1).trim(), v = get(cfg, p);
-        if (v != null && v !== "" && typeof v !== "object" && !/^on/i.test(a)) el.setAttribute(a, String(v));
+    function imageOf(p){ return p.cover || p.image || ""; }
+    function categoryName(id){ const c = categories.find(x=>x.id===id); return c ? c.name : ""; }
+    function visibleProducts(){
+      const q = query.trim().toLocaleLowerCase("pt-BR");
+      return products.filter(p=>{
+        const matchesCat = !activeCategory || p.categoryId === activeCategory || categories.some(c=>c.id===p.categoryId && c.parentId===activeCategory);
+        const haystack = [p.name,p.description,categoryName(p.categoryId),(p.tags||[]).join(" ")].join(" ").toLocaleLowerCase("pt-BR");
+        return matchesCat && (!q || haystack.includes(q));
       });
-    });
-    qsa("[data-v8-show]").forEach(function (el) {
-      var v = get(cfg, attr(el, "data-v8-show")), empty = v == null || v === "" || v === false || (Array.isArray(v) && !v.length);
-      if (empty) el.hidden = true; else el.hidden = false;
-    });
-  }
-  function setMeta(selector, create, value) {
-    if (!value) return;
-    var el = document.head.querySelector(selector);
-    if (!el) { el = document.createElement(create.tag); Object.keys(create.attrs).forEach(function (k) { el.setAttribute(k, create.attrs[k]); }); document.head.appendChild(el); }
-    el.setAttribute(create.valueAttr, value);
-  }
-  function applySeo(cfg) {
-    var seo = cfg.seo || {};
-    if (seo.title) document.title = seo.title;
-    setMeta('meta[name="description"]', { tag: "meta", attrs: { name: "description" }, valueAttr: "content" }, seo.description);
-    setMeta('meta[name="keywords"]', { tag: "meta", attrs: { name: "keywords" }, valueAttr: "content" }, seo.keywords);
-    setMeta('meta[name="robots"]', { tag: "meta", attrs: { name: "robots" }, valueAttr: "content" }, seo.robots);
-    setMeta('meta[property="og:title"]', { tag: "meta", attrs: { property: "og:title" }, valueAttr: "content" }, seo.title);
-    setMeta('meta[property="og:description"]', { tag: "meta", attrs: { property: "og:description" }, valueAttr: "content" }, seo.description);
-    setMeta('meta[property="og:image"]', { tag: "meta", attrs: { property: "og:image" }, valueAttr: "content" }, safeUrl(seo.ogImage));
-    setMeta('link[rel="canonical"]', { tag: "link", attrs: { rel: "canonical" }, valueAttr: "href" }, safeUrl(seo.canonical));
-  }
-  function addScriptSrc(src, id) {
-    if (id && document.getElementById(id)) return;
-    var s = document.createElement("script"); s.async = true; s.src = src; if (id) s.id = id; document.head.appendChild(s);
-  }
-  function addInline(code, id) {
-    if (id && document.getElementById(id)) return;
-    var s = document.createElement("script"); if (id) s.id = id; s.text = code; document.head.appendChild(s);
-  }
-  function findId(value, regex) {
-    var v = String(value || "").trim(), m = v.match(regex);
-    if (m) return m[0];
-    return v && !/[\s<>"']/.test(v) ? v : ""; // valor simples (já é o ID): usa como está
-  }
-  function applyTracking(cfg) {
-    var t = cfg.tracking || {};
-    var gtm = findId(t.tag, /GTM-[A-Z0-9]+/i);
-    if (gtm) {
-      addInline("(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s);j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','" + gtm.toUpperCase() + "');", "v8-gtm");
     }
-    var ga = findId(t.analytics, /\b(G-[A-Z0-9]{4,}|UA-\d+-\d+)\b/i);
-    if (ga) {
-      addScriptSrc("https://www.googletagmanager.com/gtag/js?id=" + encodeURIComponent(ga), "v8-ga");
-      addInline("window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','" + ga + "');", "v8-ga-init");
+    function renderCategories(){
+      const roots = categories.filter(c=>!c.parentId);
+      const all = [{id:"",name:"Todos"},...roots];
+      $("#categories").innerHTML = all.map(c=>`<button type="button" class="category-btn ${activeCategory===c.id?"active":""}" data-category="${esc(c.id)}">${esc(c.name)}</button>`).join("");
     }
-    var px = findId(t.pixel, /\b\d{10,20}\b/);
-    if (px) {
-      addInline("!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','" + px + "');fbq('track','PageView');", "v8-pixel");
+    function productCard(p){
+      const img = imageOf(p);
+      const price = p.price == null || p.price === "" ? '<div class="price muted">Consulte o preço</div>' : `<div class="price">${money(p.price)}</div>`;
+      const badges = `${p.featured?'<span class="badge">Destaque</span>':""}${p.promotion?'<span class="badge sale">Promoção</span>':""}`;
+      return `<article class="product">
+        <div class="product-media" data-detail="${esc(p.id)}">${img?`<img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy">`:'<span class="placeholder" aria-hidden="true">◇</span>'}<div class="badge-row">${badges}</div></div>
+        <div class="product-body"><small class="product-category">${esc(categoryName(p.categoryId)||"Item")}</small><h3 data-detail="${esc(p.id)}">${esc(p.name||"Item")}</h3>${p.description?`<p class="product-description">${esc(p.description)}</p>`:""}
+          <div class="product-bottom">${price}<div class="product-actions"><button class="btn btn-secondary" type="button" data-add="${esc(p.id)}">Adicionar</button><button class="btn btn-primary" type="button" data-detail="${esc(p.id)}">Ver detalhes</button></div></div>
+        </div></article>`;
     }
-  }
-  function applyCustomScripts(cfg) {
-    if (!SCRIPTS_ON) return;
-    var sc = cfg.scripts || {};
-    [["head", document.head], ["body", document.body], ["footer", document.body]].forEach(function (pair) {
-      var code = sc[pair[0]]; if (!code) return;
-      var tpl = document.createElement("template"); tpl.innerHTML = code;
-      Array.prototype.slice.call(tpl.content.childNodes).forEach(function (node) {
-        if (node.nodeName === "SCRIPT") {
-          var s = document.createElement("script");
-          Array.prototype.slice.call(node.attributes).forEach(function (a) { s.setAttribute(a.name, a.value); });
-          s.text = node.textContent; pair[1].appendChild(s);
-        } else pair[1].appendChild(node);
-      });
-    });
-  }
-
-  /* ---------- mídia ---------- */
-  function renderGallery(cfg) {
-    var imgs = (cfg.media && cfg.media.galleryEnabled !== false && Array.isArray(cfg.media.galleryImages)) ? cfg.media.galleryImages : [];
-    qsa("[data-v8-gallery]").forEach(function (el) {
-      var urls = imgs.map(function (i) { return safeUrl(typeof i === "string" ? i : (i && (i.url || i.src))); }).filter(Boolean);
-      if (!urls.length) { el.style.display = "none"; return; }
-      el.hidden = false; el.style.display = "";
-      el.innerHTML = urls.map(function (u, i) { return '<img class="v8-gallery-item" src="' + esc(u) + '" alt="' + esc((cfg.name || "Imagem") + " " + (i + 1)) + '" loading="lazy">'; }).join("");
-    });
-  }
-  function videoSrc(url) {
-    url = safeUrl(url); if (!url) return "";
-    var yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([\w-]{6,})/i);
-    if (yt) return "https://www.youtube.com/embed/" + yt[1];
-    var vm = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-    if (vm) return "https://player.vimeo.com/video/" + vm[1];
-    return url;
-  }
-  function renderVideo(cfg) {
-    qsa("[data-v8-video]").forEach(function (el) {
-      var m = cfg.media || {}, src = m.videoEnabled !== false && m.video ? videoSrc(m.video) : "";
-      if (!src) { el.hidden = true; return; }
-      if (el.tagName === "IFRAME") { el.setAttribute("src", src); el.setAttribute("allowfullscreen", ""); if (!el.getAttribute("loading")) el.setAttribute("loading", "lazy"); el.hidden = false; return; }
-      if (el.tagName === "VIDEO") { el.setAttribute("src", src); el.hidden = false; return; }
-      el.hidden = false;
-      el.innerHTML = /\.(mp4|webm|ogg)(\?.*)?$/i.test(src) ? '<video src="' + esc(src) + '" controls playsinline style="width:100%"></video>' : '<iframe src="' + esc(src) + '" title="Vídeo" allowfullscreen loading="lazy" style="width:100%;aspect-ratio:16/9;border:0"></iframe>';
-    });
-  }
-  function mapsSrc(loc) {
-    loc = loc || {};
-    var raw = String(loc.embed || "").trim(), src = "";
-    var m = raw.match(/src=["']([^"']+)["']/i); src = m ? m[1] : (/^https?:/i.test(raw) ? raw : "");
-    if (!src && loc.mapsUrl) {
-      var u = safeUrl(loc.mapsUrl);
-      if (/google\.[a-z.]+\/maps|maps\.app\.goo\.gl|goo\.gl\/maps/i.test(u)) src = "https://www.google.com/maps?q=" + encodeURIComponent(loc.address || u) + "&output=embed";
+    function renderProducts(){
+      const list = visibleProducts();
+      $("#resultCount").textContent = `${list.length} ${list.length===1?"item encontrado":"itens encontrados"}`;
+      $("#products").innerHTML = list.length ? list.map(productCard).join("") : '<div class="empty">Não encontramos itens com esses filtros. Tente outra busca ou categoria.</div>';
     }
-    if (!src && loc.address) src = "https://www.google.com/maps?q=" + encodeURIComponent(loc.address) + "&output=embed";
-    return /^https:\/\//i.test(src) ? src : "";
-  }
-  function renderMaps(cfg) {
-    qsa("[data-v8-maps-embed]").forEach(function (el) {
-      var loc = cfg.location || {}, src = loc.enabled === false ? "" : mapsSrc(loc);
-      if (!src) { el.style.display = "none"; return; }
-      el.hidden = false; el.style.display = "";
-      el.innerHTML = '<iframe src="' + esc(src) + '" title="Mapa" loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen style="width:100%;min-height:320px;border:0"></iframe>';
-    });
-  }
-  function renderReviews() {
-    var boxes = qsa("[data-v8-reviews]"); if (!boxes.length) return Promise.resolve();
-    return request("/api/public/reviews/" + encodeURIComponent(PROJECT_ID)).then(function (r) {
-      state.reviews = r;
-      boxes.forEach(function (el) {
-        var list = (r && r.success && r.enabled !== false && r.reviews) || [], limit = parseInt(attr(el, "data-limit"), 10) || list.length;
-        if (!list.length) { el.hidden = true; return; }
-        el.hidden = false; el.classList.add("v8-reviews");
-        el.innerHTML = list.slice(0, limit).map(function (rv) {
-          var n = Math.max(0, Math.min(5, Math.round(rv.rating || 0)));
-          return '<article class="v8-review"><div class="v8-stars" aria-label="' + n + ' de 5">' + "★".repeat(n) + "☆".repeat(5 - n) + "</div><p>" + esc(rv.text) + "</p><strong>" + esc(rv.author) + "</strong> <small>" + esc(rv.relativeTime) + "</small></article>";
-        }).join("");
-      });
-    }).catch(function () { boxes.forEach(function (el) { el.hidden = true; }); });
-  }
-
-  /* ---------- formulário → leads ---------- */
-  function leadPayload(form) {
-    var fd = new FormData(form);
-    var data = {
-      name: String(fd.get("name") || fd.get("nome") || "").trim(),
-      email: String(fd.get("email") || "").trim(),
-      phone: String(fd.get("phone") || fd.get("telefone") || fd.get("whatsapp") || "").trim(),
-      message: String(fd.get("message") || fd.get("mensagem") || "").trim()
-    };
-    var extras = [];
-    fd.forEach(function (v, k) {
-      if (["name", "nome", "email", "phone", "telefone", "whatsapp", "message", "mensagem", "_gotcha", "_subject", "_next", "_replyto"].indexOf(k) < 0 && typeof v === "string" && v.trim()) extras.push(k + ": " + v.trim());
-    });
-    if (extras.length) data.message = (data.message ? data.message + "\n\n" : "") + extras.join("\n");
-    return { fd: fd, data: data };
-  }
-  function sendLead(data) {
-    return fetch(API + "/api/public/leads/" + encodeURIComponent(PROJECT_ID), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data), keepalive: true })
-      .then(function (r) { return r.json().catch(function () { return { success: r.ok }; }); });
-  }
-  function bindForms(cfg) {
-    var fs = cfg && /^https:\/\/formspree\.io\//i.test(cfg.formspree || "") ? cfg.formspree : "";
-    qsa("form[data-v8-form]").forEach(function (form) {
-      if (form.__v8) return; form.__v8 = true;
-      // Modo Formspree (compatível com o loader antigo): o <form> envia nativamente e o lead é copiado pro painel.
-      var native = !!fs && attr(form, "data-v8-ajax") !== "true";
-      if (native) { form.setAttribute("action", fs); if (!form.getAttribute("method")) form.setAttribute("method", "POST"); }
-      form.addEventListener("submit", function (e) {
-        var p = leadPayload(form);
-        if (p.fd.get("_gotcha")) { if (!native) e.preventDefault(); return; } // honeypot
-        if (native) {
-          sendLead(p.data).then(function (r) { fire("v8:lead-sent", { lead: r && r.lead, form: form }); }).catch(function () {});
-          if (window.fbq) { try { window.fbq("track", "Lead"); } catch (x) {} }
-          return; // sem preventDefault: o navegador segue para o Formspree
-        }
-        e.preventDefault();
-        var btn = form.querySelector('[type="submit"]'), msg = form.querySelector(".v8-form-msg");
-        if (!msg) { msg = document.createElement("div"); msg.className = "v8-form-msg"; msg.setAttribute("role", "status"); form.appendChild(msg); }
-        if (btn) btn.disabled = true; msg.textContent = "Enviando...";
-        sendLead(p.data)
-          .then(function (r) {
-            if (!r || r.success === false) throw new Error((r && r.error) || "Não foi possível enviar.");
-            msg.textContent = attr(form, "data-success") || "Mensagem enviada! Em breve entraremos em contato.";
-            form.reset(); fire("v8:lead-sent", { lead: r.lead, form: form });
-            if (window.fbq) { try { window.fbq("track", "Lead"); } catch (x) {} }
-            if (window.gtag) { try { window.gtag("event", "generate_lead"); } catch (x) {} }
-          })
-          .catch(function (err) { msg.textContent = err.message || "Erro ao enviar. Tente novamente."; fire("v8:lead-error", { error: err, form: form }); })
-          .then(function () { if (btn) btn.disabled = false; });
-      });
-    });
-  }
-
-  /* ---------- catálogo ---------- */
-  function catById(id) { return (state.catalog.categories || []).filter(function (c) { return c.id === id; })[0]; }
-  function catKids(id) { return (state.catalog.categories || []).filter(function (c) { return c.parentId === id; }); }
-  function resolveCat(v) {
-    if (!v) return "";
-    var low = v.toLowerCase();
-    var c = (state.catalog.categories || []).filter(function (x) { return x.id === v || x.name.toLowerCase() === low; })[0];
-    return c ? c.id : "__none__";
-  }
-  function resolveTag(v) {
-    if (!v) return "";
-    var low = v.toLowerCase();
-    var t = (state.catalog.tags || []).filter(function (x) { return x.id === v || x.name.toLowerCase() === low; })[0];
-    return t ? t.id : "__none__";
-  }
-  function catPath(id) { var c = catById(id); if (!c) return ""; var p = c.parentId ? catById(c.parentId) : null; return p ? p.name + " › " + c.name : c.name; }
-  /* ---------- pagamento (InfinitePay / Mercado Pago) ---------- */
-  function payEnabled() {
-    var pay = (state.config && state.config.payments) || {};
-    return !!((pay.infinitePay && pay.infinitePay.enabled) || (pay.mercadoPago && pay.mercadoPago.enabled));
-  }
-  function payLabelFor() {
-    var box = document.querySelector("[data-pay-label]");
-    return box ? attr(box, "data-pay-label") : "Pagar agora";
-  }
-  function startPayment(btn) {
-    if (btn.__busy) return;
-    var itemId = attr(btn, "data-v8-pay"); if (!itemId) return;
-    var scope = btn.closest ? btn.closest("[data-v8-catalog]") : null;
-    var form = attr(btn, "data-form") ? document.querySelector(attr(btn, "data-form")) : null;
-    var data = { itemId: itemId, quantity: parseInt(attr(btn, "data-qty"), 10) || 1, provider: attr(btn, "data-provider") || attr(scope, "data-provider") || "", redirectUrl: attr(btn, "data-redirect") || attr(scope, "data-redirect") || location.href.split("#")[0] };
-    if (form) { var fd = new FormData(form); data.name = String(fd.get("name") || fd.get("nome") || ""); data.email = String(fd.get("email") || ""); data.phone = String(fd.get("phone") || fd.get("telefone") || fd.get("whatsapp") || ""); }
-    var original = btn.textContent; btn.__busy = true; btn.disabled = true; btn.textContent = "Aguarde...";
-    request("/api/public/payments/" + encodeURIComponent(PROJECT_ID) + "/checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
-      .then(function (r) {
-        if (!r || r.success === false || !r.url) throw new Error((r && r.error) || "Não foi possível iniciar o pagamento.");
-        fire("v8:pay-started", { url: r.url, paymentId: r.paymentId });
-        if (window.fbq) { try { window.fbq("track", "InitiateCheckout"); } catch (x) {} }
-        window.location.href = r.url;
-      })
-      .catch(function (err) { fire("v8:pay-error", { error: err }); alert(err.message || "Erro ao iniciar o pagamento."); btn.__busy = false; btn.disabled = false; btn.textContent = original; });
-  }
-  function bindPay() {
-    qsa("[data-v8-pay]").forEach(function (el) { if (!payEnabled() && !el.closest("[data-v8-catalog]")) el.hidden = true; });
-    if (document.__v8payBound) return; document.__v8payBound = true;
-    document.addEventListener("click", function (e) {
-      var b = e.target.closest ? e.target.closest("[data-v8-pay]") : null; if (!b || !payEnabled()) return;
-      e.preventDefault(); startPayment(b);
-    });
-  }
-
-  function cardHtml(p, cta, ctaLabel, showPath) {
-    var tags = (p.tags || []).map(function (id) { return (state.catalog.tags || []).filter(function (t) { return t.id === id; })[0]; }).filter(Boolean);
-    var price = p.price == null ? "Sob consulta" : formatMoney(p.price);
-    var ctas = String(cta || "").split(",").map(function (x) { return x.trim(); });
-    var link = ctas.indexOf("whatsapp") >= 0 ? waLink(field("contact.whatsapp"), "Olá! Tenho interesse em: " + p.name) : "";
-    var payBtn = ctas.indexOf("pay") >= 0 && p.price != null && payEnabled() ? '<button type="button" class="v8-cta v8-pay" data-v8-pay="' + esc(p.id) + '">' + esc(payLabelFor(cta)) + "</button>" : "";
-    return '<article class="v8-card" data-id="' + esc(p.id) + '"><div class="v8-card-media">' + ((p.cover || p.image) ? '<img src="' + esc(safeUrl(p.cover || p.image)) + '" alt="' + esc(p.name) + '" loading="lazy">' : "") + '</div><div class="v8-card-body">' +
-      ((p.featured || p.promotion) ? "<div>" + (p.featured ? '<span class="v8-badge">Destaque</span>' : "") + (p.promotion ? '<span class="v8-badge">Promoção</span>' : "") + "</div>" : "") +
-      "<h3>" + esc(p.name) + "</h3>" + (showPath && catPath(p.categoryId) ? '<small class="v8-path">' + esc(catPath(p.categoryId)) + "</small>" : "") +
-      (p.description ? "<p>" + esc(p.description) + "</p>" : "") +
-      (tags.length ? '<div class="v8-tags">' + tags.map(function (t) { return '<span class="v8-tag">#' + esc(t.name) + "</span>"; }).join("") + "</div>" : "") +
-      '<div class="v8-price">' + esc(price) + "</div>" + (payBtn || "") + (link ? '<a class="v8-cta" href="' + esc(link) + '" target="_blank" rel="noopener">' + esc(ctaLabel) + "</a>" : "") + "</div></article>";
-  }
-  function gridHtml(items, cta, ctaLabel, showPath) {
-    return '<div class="v8-catalog-grid">' + items.map(function (p) { return cardHtml(p, cta, ctaLabel, showPath); }).join("") + "</div>";
-  }
-  function catalogOpts(el) {
-    return {
-      baseCat: resolveCat(attr(el, "data-category")), baseTag: resolveTag(attr(el, "data-tag")),
-      type: attr(el, "data-type"), featured: attr(el, "data-featured") === "true", limit: parseInt(attr(el, "data-limit"), 10) || 0,
-      filters: attr(el, "data-filters") === "true", search: attr(el, "data-search") === "true",
-      layout: attr(el, "data-layout") === "vitrine" ? "vitrine" : "grid",
-      cta: attr(el, "data-cta"), ctaLabel: attr(el, "data-cta-label") || "Pedir orçamento",
-      othersLabel: attr(el, "data-others-label") || "Outros", emptyText: attr(el, "data-empty") || "Nenhum item encontrado."
-    };
-  }
-  function catalogItems(o, ui) {
-    var activeCat = ui.sub || ui.cat || o.baseCat, ids = null, q = (ui.q || "").trim().toLowerCase();
-    if (activeCat) { ids = {}; ids[activeCat] = 1; catKids(activeCat).forEach(function (k) { ids[k.id] = 1; }); }
-    var tagId = ui.tag || o.baseTag;
-    var list = (state.catalog.products || []).filter(function (p) {
-      if (ids && !ids[p.categoryId]) return false;
-      if (tagId && (p.tags || []).indexOf(tagId) < 0) return false;
-      if (o.type && p.itemType !== o.type) return false;
-      if (o.featured && !p.featured) return false;
-      if (q) {
-        var tn = (p.tags || []).map(function (id) { var t = (state.catalog.tags || []).filter(function (x) { return x.id === id; })[0]; return t ? t.name : ""; }).join(" ");
-        if ((p.name + " " + (p.description || "") + " " + tn + " " + catPath(p.categoryId)).toLowerCase().indexOf(q) < 0) return false;
-      }
-      return true;
-    });
-    return o.limit ? list.slice(0, o.limit) : list;
-  }
-  /* Vitrine: uma seção por categoria (subcategorias dentro). */
-  function vitrineHtml(list, o) {
-    var cats = state.catalog.categories || [], html = "";
-    var roots = cats.filter(function (c) { return !c.parentId; });
-    if (o.baseCat && o.baseCat !== "__none__") { var bc = catById(o.baseCat); roots = bc ? [bc] : []; }
-    roots.forEach(function (r) {
-      var direct = list.filter(function (p) { return p.categoryId === r.id; });
-      var blocks = (r.parentId ? [] : catKids(r.id)).map(function (k) { return { k: k, items: list.filter(function (p) { return p.categoryId === k.id; }) }; }).filter(function (b) { return b.items.length; });
-      if (!direct.length && !blocks.length) return;
-      html += '<section class="v8-vitrine-section" data-category-id="' + esc(r.id) + '"><h2 class="v8-vitrine-title">' + esc(r.name) + "</h2>";
-      if (direct.length) html += gridHtml(direct, o.cta, o.ctaLabel, false);
-      blocks.forEach(function (b) { html += '<div class="v8-vitrine-sub"><h3 class="v8-vitrine-subtitle">' + esc(b.k.name) + "</h3>" + gridHtml(b.items, o.cta, o.ctaLabel, false) + "</div>"; });
-      html += "</section>";
-    });
-    if (!o.baseCat) {
-      var known = {}; cats.forEach(function (c) { known[c.id] = 1; });
-      var loose = list.filter(function (p) { return !p.categoryId || !known[p.categoryId]; });
-      if (loose.length) html += '<section class="v8-vitrine-section" data-category-id=""><h2 class="v8-vitrine-title">' + esc(o.othersLabel) + "</h2>" + gridHtml(loose, o.cta, o.ctaLabel, false) + "</section>";
+    function renderBrand(){
+      const name = cfgGet("content.name") || config.name || "Catálogo Digital V8";
+      const headline = cfgGet("content.headline") || "Conheça nossas opções e fale conosco";
+      const desc = cfgGet("content.description") || "Explore nosso catálogo e entre em contato pelo WhatsApp.";
+      $("#brandName").textContent = name;
+      $("#footerName").textContent = name;
+      $("#copyrightName").textContent = name;
+      $("#footerDescription").textContent = desc;
+      $("#heroDescription").textContent = desc;
+      $("#heroEyebrow").textContent = headline;
+      document.title = (cfgGet("seo.title") || name + " | Catálogo");
+      const wa = whatsappUrl("Olá! Gostaria de conhecer os produtos do catálogo.");
+      if(wa){ $("#whatsappFloat").href = wa; $("#whatsappFloat").hidden = false; }
+      const instagram = cfgGet("social.instagram");
+      if(instagram){ const el = document.querySelector('[data-v8-href="social.instagram"]'); if(el) el.href = /^https?:\/\//i.test(instagram) ? instagram : "https://instagram.com/"+String(instagram).replace(/^@/,""); }
     }
-    return html;
-  }
-  function paintCatalogFilters(el, o, ui) {
-    var slot = el.querySelector(".v8-catalog-filters"); if (!slot) return;
-    var btn = function (label, on, kind, id) { return '<button type="button" class="' + (on ? "active" : "") + '" data-v8-f="' + kind + '" data-id="' + esc(id) + '"><span>' + esc(label) + "</span></button>"; };
-    var html = "";
-    if (o.filters) {
-      if (o.layout !== "vitrine") {
-        var roots = (state.catalog.categories || []).filter(function (c) { return !c.parentId; });
-        var top = o.baseCat && o.baseCat !== "__none__" ? catKids(o.baseCat) : (o.baseCat ? [] : roots);
-        if (top.length) {
-          html += '<div class="v8-filters">' + btn("Todas", !(ui.cat || ui.sub), "cat", "") + top.map(function (c) { return btn(c.name, ui.cat === c.id, "cat", c.id); }).join("") + "</div>";
-          var kids = ui.cat && !o.baseCat ? catKids(ui.cat) : [];
-          if (kids.length) html += '<div class="v8-filters">' + btn("Todas", !ui.sub, "sub", "") + kids.map(function (c) { return btn(c.name, ui.sub === c.id, "sub", c.id); }).join("") + "</div>";
-        }
-      }
-      if ((state.catalog.tags || []).length) {
-        html += '<div class="v8-filters">' + btn("Todas as tags", !ui.tag, "tag", "") + state.catalog.tags.map(function (t) { return btn("#" + t.name, ui.tag === t.id, "tag", t.id); }).join("") + "</div>";
-      }
+    function renderCart(){
+      $("#cartCount").textContent = cart.reduce((sum,x)=>sum+x.qty,0);
+      $("#cartTotal").textContent = money(cart.reduce((sum,x)=>sum+Number(x.product.price||0)*x.qty,0));
+      if(!cart.length){$("#cartItems").innerHTML='<p class="empty">Seu carrinho está vazio.</p>';return;}
+      $("#cartItems").innerHTML = cart.map(x=>{
+        const img=imageOf(x.product);
+        return `<div class="cart-item"><div>${img?`<img class="cart-thumb" src="${esc(img)}" alt="">`:'<div class="cart-thumb"></div>'}</div><div><h3>${esc(x.product.name)}</h3><small>${x.product.price==null?"Preço sob consulta":money(x.product.price)}</small><div class="qty"><button type="button" data-qty="-1" data-id="${esc(x.product.id)}" aria-label="Diminuir">−</button><span>${x.qty}</span><button type="button" data-qty="1" data-id="${esc(x.product.id)}" aria-label="Aumentar">+</button></div></div><button type="button" class="remove" data-remove="${esc(x.product.id)}">Remover</button></div>`;
+      }).join("");
     }
-    slot.innerHTML = html;
-  }
-  function paintCatalogResults(el, o, ui) {
-    var slot = el.querySelector(".v8-catalog-results"); if (!slot) return;
-    var list = catalogItems(o, ui);
-    var html = list.length ? (o.layout === "vitrine" ? vitrineHtml(list, o) : gridHtml(list, o.cta, o.ctaLabel, true)) : "";
-    slot.innerHTML = html || '<p class="v8-empty">' + esc(o.emptyText) + "</p>";
-  }
-  function renderCatalog() {
-    var boxes = qsa("[data-v8-catalog]"); if (!boxes.length || !state.catalog) return;
-    boxes.forEach(function (el) {
-      var o = catalogOpts(el), ui = el.__v8ui = el.__v8ui || { cat: "", sub: "", tag: "", q: "" };
-      if (!el.__v8init) {
-        el.__v8init = true;
-        el.innerHTML = '<div class="v8-catalog-search"></div><div class="v8-catalog-filters"></div><div class="v8-catalog-results"></div>';
-        if (o.search) {
-          var inp = document.createElement("input"); inp.type = "search"; inp.className = "v8-search-input"; inp.placeholder = attr(el, "data-search-placeholder") || "Buscar..."; inp.setAttribute("aria-label", "Buscar no catálogo");
-          inp.addEventListener("input", function () { ui.q = inp.value; paintCatalogResults(el, catalogOpts(el), ui); });
-          el.querySelector(".v8-catalog-search").appendChild(inp);
-        }
-        el.addEventListener("click", function (e) {
-          var b = e.target.closest ? e.target.closest("[data-v8-f]") : null; if (!b) return;
-          var kind = b.getAttribute("data-v8-f"), id = b.getAttribute("data-id");
-          if (kind === "cat") { ui.cat = id; ui.sub = ""; } else if (kind === "sub") ui.sub = id; else ui.tag = id;
-          var oo = catalogOpts(el); paintCatalogFilters(el, oo, ui); paintCatalogResults(el, oo, ui);
-        });
-      }
-      el.hidden = false; paintCatalogFilters(el, o, ui); paintCatalogResults(el, o, ui);
-    });
-  }
-  function loadCatalog() {
-    if (!WANT_CATALOG && !qsa("[data-v8-catalog]").length) return Promise.resolve();
-    return request("/api/public/catalog/" + encodeURIComponent(PROJECT_ID)).then(function (r) {
-      if (!r || r.success === false) throw new Error((r && r.error) || "catálogo indisponível");
-      state.catalog = { products: r.products || [], categories: r.categories || [], tags: r.tags || [] };
-      window.V8.catalog = state.catalog; renderCatalog(); fire("v8:catalog", state.catalog);
-    }).catch(function (err) {
-      console.warn("[V8] Catálogo:", err.message); qsa("[data-v8-catalog]").forEach(function (el) { el.hidden = true; });
-    });
-  }
-
-  /* ---------- inicialização ---------- */
-  function applyAll(cfg) {
-    state.config = cfg; window.V8.config = cfg;
-    bindFields(cfg); applySeo(cfg); applyTracking(cfg); applyCustomScripts(cfg);
-    renderGallery(cfg); renderVideo(cfg); renderMaps(cfg); bindForms(cfg); bindPay();
-    if (state.catalog) renderCatalog();
-  }
-  function init() {
-    if (!PROJECT_ID) { console.warn("[V8] Informe data-project-id no <script> do v8-loader."); return Promise.resolve(null); }
-    if (/^(ID_DO_PROJETO|SEU_PROJECT_ID|ID_DO_PROJECT)$/i.test(PROJECT_ID)) {
-      console.warn('[V8] O data-project-id ainda está com o texto de exemplo ("' + PROJECT_ID + '"). Troque pelo ID real do projeto: painel V8 › Projetos › Editar › aba Geral › "Copiar ID".');
-      return Promise.resolve(null);
+    function addToCart(id){
+      const p=products.find(x=>String(x.id)===String(id)); if(!p)return;
+      const found=cart.find(x=>String(x.product.id)===String(id));
+      if(found)found.qty++;else cart.push({product:p,qty:1});
+      renderCart(); openCart();
     }
-    injectStyle();
-    return request("/api/public/config/" + encodeURIComponent(PROJECT_ID)).then(function (data) {
-      var cfg = unwrapProject(data);
-      if (!cfg) throw new Error((data && data.error) || "Projeto não encontrado.");
-      applyAll(cfg);
-      return Promise.all([loadCatalog(), renderReviews()]).then(function () { fire("v8:ready", cfg); return cfg; });
-    }).catch(function (err) { console.warn("[V8] Falha ao carregar o projeto:", err.message); return null; });
-  }
-
-  window.V8 = { __v3: true, projectId: PROJECT_ID, api: API, config: null, catalog: null, field: field, formatMoney: formatMoney, reload: function () { return init(); } };
-  window.V8.ready = new Promise(function (resolve) {
-    function go() { init().then(resolve); }
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", go); else go();
-  });
-})();
+    function openCart(){ $("#overlay").hidden=false;$("#cartDrawer").hidden=false;document.body.style.overflow="hidden"; }
+    function closeCart(){ $("#overlay").hidden=true;$("#cartDrawer").hidden=true;document.body.style.overflow=""; }
+    function showProduct(id){
+      const p=products.find(x=>String(x.id)===String(id));if(!p)return;
+      const img=imageOf(p);
+      $("#productDetail").innerHTML=`<div class="dialog-inner"><div class="dialog-media">${img?`<img src="${esc(img)}" alt="${esc(p.name)}">`:'<div class="placeholder">◇</div>'}</div><div class="dialog-content"><small class="product-category">${esc(categoryName(p.categoryId)||"Item")}</small><h2>${esc(p.name)}</h2><p>${esc(p.description||"Entre em contato para saber mais sobre este produto.")}</p><div class="price">${p.price==null?"Consulte o preço":money(p.price)}</div><button type="button" class="btn btn-primary" data-add="${esc(p.id)}">Adicionar ao carrinho</button></div></div>`;
+      const d=$("#productDialog"); if(typeof d.showModal==="function")d.showModal();else d.setAttribute("open","");
+    }
+    function checkout(){
+      if(!cart.length){alert("Adicione pelo menos um produto ao carrinho.");return;}
+      const lines=cart.map(x=>`• ${x.product.name} — ${x.qty} un. — ${x.product.price==null?"preço a confirmar":money(x.product.price*x.qty)}`);
+      const total=cart.reduce((sum,x)=>sum+Number(x.product.price||0)*x.qty,0);
+      const message="Olá! Gostaria de fazer um pedido:\n\n"+lines.join("\n")+"\n\nTotal estimado: "+money(total)+"\n\nPor favor, confirme a disponibilidade e as formas de pagamento.";
+      const url=whatsappUrl(message);
+      if(!url){alert("O WhatsApp da empresa não está configurado no V8 Admin. Entre em contato com o responsável pelo catálogo.");return;}
+      window.open(url,"_blank","noopener,noreferrer");
+    }
+    $("#searchForm").addEventListener("submit",e=>{e.preventDefault();query=$("#search").value;renderProducts();});
+    $("#search").addEventListener("input",()=>{query=$("#search").value;renderProducts();});
+    $("#categories").addEventListener("click",e=>{const b=e.target.closest("[data-category]");if(!b)return;activeCategory=b.dataset.category;renderCategories();renderProducts();});
+    document.addEventListener("click",e=>{
+      const add=e.target.closest("[data-add]"); if(add){e.preventDefault();const id=add.dataset.add;if($("#productDialog").open)$("#productDialog").close();addToCart(id);return;}
+      const detail=e.target.closest("[data-detail]");if(detail){showProduct(detail.dataset.detail);return;}
+      const qty=e.target.closest("[data-qty]");if(qty){const item=cart.find(x=>String(x.product.id)===String(qty.dataset.id));if(item){item.qty+=Number(qty.dataset.qty);if(item.qty<=0)cart=cart.filter(x=>x!==item);renderCart();}return;}
+      const rem=e.target.closest("[data-remove]");if(rem){cart=cart.filter(x=>String(x.product.id)!==String(rem.dataset.remove));renderCart();}
+    });
+    $("#openCart").addEventListener("click",openCart);$("#closeCart").addEventListener("click",closeCart);$("#overlay").addEventListener("click",closeCart);$("#checkout").addEventListener("click",checkout);$("#closeProduct").addEventListener("click",()=>$("#productDialog").close());
+    $("#year").textContent=new Date().getFullYear();
+    let initialized=false;
+    function initFromV8(){
+      if(initialized || !window.V8 || !window.V8.catalog)return;
+      initialized=true;config=window.V8.config||{};products=Array.isArray(window.V8.catalog.products)?window.V8.catalog.products:[];categories=Array.isArray(window.V8.catalog.categories)?window.V8.catalog.categories:[];
+      renderBrand();renderCategories();renderProducts();
+    }
+    document.addEventListener("v8:ready",initFromV8);
+    document.addEventListener("v8:catalog",()=>{if(window.V8 && window.V8.catalog){initialized=false;initFromV8();}});
+    window.addEventListener("load",()=>{if(window.V8 && window.V8.ready)window.V8.ready.then(initFromV8).catch(()=>{});});
+    setTimeout(()=>{if(!initialized){const msg=window.V8 && window.V8.projectId==="SEU_PROJECT_ID"?"Configure o ID real do projeto V8 no script v8-loader.js.":"Não foi possível carregar o catálogo. Confira o ID do projeto, a conexão com o Worker e se há produtos publicados no V8 Admin.";$("#products").innerHTML=`<div class="empty">${esc(msg)}</div>`;$("#resultCount").textContent="Catálogo indisponível";}},10000);
+  })();
+  </script>
+</body>
+</html>
