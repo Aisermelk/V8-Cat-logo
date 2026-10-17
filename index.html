@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Catálogo online</title>
+  <meta name="description" content="Explore produtos, adicione ao carrinho e faça seu pedido online.">
+  <meta name="theme-color" content="#ffffff">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="header">
+    <div class="container header-row">
+      <button class="mobile-filter-toggle" id="openCategories" type="button" aria-label="Abrir todas as categorias" aria-controls="categoryDrawer" aria-expanded="false"><span></span><span></span><span></span></button>
+      <a class="brand-slot" href="./" aria-label="Página inicial">
+        <img src="assets/logo.svg" alt="Logo da loja" onerror="this.hidden=true">
+        <span class="brand-fallback" aria-hidden="true"></span>
+      </a>
+      <div class="header-actions">
+        <button class="icon-button" id="openFavorites" type="button" aria-label="Ver favoritos" title="Favoritos">♡</button>
+        <button class="cart-button" id="openCart" aria-label="Abrir carrinho">🛒<strong id="cartCount">0</strong></button>
+      </div>
+    </div>
+    <div class="container search-wrap"><div class="search"><span aria-hidden="true">⌕</span><input id="search" type="search" placeholder="O que você está procurando?" aria-label="O que você está procurando?"><button id="searchBtn" aria-label="Buscar">Buscar</button></div><button class="filter-button" id="openFilters" type="button" aria-controls="filtersSidebar"><span>☷</span> Filtros</button></div>
+    <nav class="nav" aria-label="Destaques"><div class="container" id="categories"></div></nav>
+  </header>
+
+  <main>
+    <section class="banners" id="bannersWrap" hidden aria-label="Ofertas em destaque">
+      <div class="container">
+        <div class="banner-carousel" id="banners"></div>
+        <div class="banner-dots" id="bannerDots" aria-label="Selecionar banner"></div>
+      </div>
+    </section>
+
+    <div class="container catalog-layout">
+      <aside class="filters-sidebar" id="filtersSidebar" aria-label="Filtros de produtos">
+        <div class="filter-head"><h2>Filtrar produtos</h2><div class="filter-head-actions"><button type="button" id="clearFilters">Limpar</button><button type="button" id="closeFilters" class="close-filters" aria-label="Fechar filtros">×</button></div></div>
+        <div class="filter-group"><h3>Categorias</h3><div id="sideCategories" class="side-categories"><button type="button" data-cat="all" class="active">Todos os produtos</button></div></div>
+        <div class="filter-group"><h3>Preço</h3><div class="price-range"><label>De <input id="minPrice" type="number" min="0" step="0.01" placeholder="R$ 0"></label><label>Até <input id="maxPrice" type="number" min="0" step="0.01" placeholder="Sem limite"></label></div></div>
+        <div class="filter-group"><h3>Disponibilidade</h3><label class="check-row"><input id="onlyAvailable" type="checkbox"> Em estoque</label><label class="check-row"><input id="onlyOffers" type="checkbox"> Em promoção</label></div>
+        <div class="filter-group"><h3>Ordenar por</h3><select id="sortProducts"><option value="relevance">Recomendados</option><option value="price-asc">Menor preço</option><option value="price-desc">Maior preço</option><option value="name">Nome: A–Z</option><option value="discount">Maior desconto</option></select></div>
+      </aside>
+      <section class="section products-section" id="produtos">
+        <div class="section-head"><h2 id="listTitle">Ofertas para você</h2><span id="resultCount"></span></div>
+        <div id="products" class="products"><div class="loading">Carregando catálogo...</div></div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="footer"><div class="container footer-row">
+    <div><a class="footer-brand" href="./"><img src="assets/logo.svg" alt="Logo da loja" onerror="this.hidden=true"></a><p data-v8="content.description">Informações da loja, políticas e formas de atendimento.</p></div>
+    <div><strong>Atendimento</strong><a data-v8="contact.whatsapp" target="_blank" rel="noopener">WhatsApp</a><a data-v8="social.instagram" target="_blank" rel="noopener">Instagram</a></div>
+    <div><strong>Informações</strong><a data-v8="content.termsUrl" target="_blank" rel="noopener">Termos e condições</a><a data-v8="content.privacyUrl" target="_blank" rel="noopener">Privacidade</a><small>© <span id="year"></span></small></div>
+  </div></footer>
+
+  <a class="whatsapp" data-v8-href="contact.whatsapp" target="_blank" rel="noopener" aria-label="Falar pelo WhatsApp">☎</a>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="category-drawer" id="categoryDrawer" aria-label="Todas as categorias" hidden><div class="drawer-head"><h2>Todas as categorias</h2><button id="closeCategories" aria-label="Fechar categorias">×</button></div><div id="categoryMenu" class="category-menu"></div></aside>
+  <aside class="drawer" id="cartDrawer" aria-label="Carrinho" hidden>
+    <div class="drawer-head"><h2>Seu carrinho</h2><button id="closeCart" aria-label="Fechar">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer"><div><span>Total</span><strong id="cartTotal">R$ 0,00</strong></div><button id="checkout" class="btn primary">Continuar pedido</button><p class="note" id="cartNote"></p></div>
+  </aside>
+
+  <dialog id="productDialog" class="product-dialog">
+    <button class="dialog-close" id="closeProduct" aria-label="Fechar">×</button>
+    <div id="productDetail"></div>
+  </dialog>
+
+  <!-- Insira o ID do projeto no V8 Admin Universal. O V8 Loader conecta os dados do catálogo. -->
+  <script src="js/v8-loader.js" data-project-id="ID_DO_PROJETO" data-catalog="true" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
