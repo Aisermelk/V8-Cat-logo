@@ -156,3 +156,16 @@
 .product-image-open:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
 .products.is-carousel .product-image-open{flex:none}
 @media(max-width:700px){.carousel-controls button{width:38px;height:38px;font-size:28px}.section-head-actions{flex-direction:row;align-items:center;gap:7px}}
+
+/* Carrossel estilo Netflix: faixa horizontal com setas sobrepostas nas laterais. */
+.products-section{position:relative}
+.products-section .section-head-actions .carousel-controls{display:contents!important}
+.products-section .carousel-controls button{position:absolute;top:52%;z-index:5;width:44px;height:74px;border:0;border-radius:9px;background:rgba(20,24,32,.82);color:#fff;font-size:38px;line-height:1;box-shadow:0 4px 18px #0002;backdrop-filter:blur(4px);transition:background .18s,transform .18s}
+.products-section .carousel-controls button:first-child{left:0}
+.products-section .carousel-controls button:last-child{right:0}
+.products-section .carousel-controls button:hover{background:var(--accent);transform:scale(1.04)}
+.products.is-carousel{padding:8px 4px 16px;gap:16px;scroll-padding-inline:4px}
+.products.is-carousel .product{flex-basis:calc((100% - 64px)/5);border-radius:12px}
+.products.is-carousel .product:hover{transform:scale(1.025);z-index:1}
+@media(max-width:1050px){.products.is-carousel .product{flex-basis:calc((100% - 48px)/4)}}
+@media(max-width:700px){.products-section .carousel-controls button{top:48%;width:34px;height:58px;font-size:30px;border-radius:7px;background:rgba(20,24,32,.86)}.products-section .carousel-controls button:first-child{left:-5px}.products-section .carousel-controls button:last-child{right:-5px}.products.is-carousel{gap:12px;padding:6px 3px 14px}.products.is-carousel .product{flex-basis:72%;max-width:260px}.products-section .section-head-actions{flex-direction:row;align-items:center}}
