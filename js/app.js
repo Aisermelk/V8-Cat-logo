@@ -65,19 +65,35 @@
     renderCategories(); renderBanners(); renderProducts(); updateCart();
   }
 
-  /* banners: produtos que têm imagem de banner no painel */
+  /* Banner promocional: usa banners cadastrados nos produtos do painel e gira automaticamente. */
+  let bannerTimer = null;
   function renderBanners() {
     const list = state.products.filter(p => p.banner && !p.soldOut);
     const wrap = $("#bannersWrap"); if (!wrap) return;
-    const show = list.length && state.category === "all" && !state.search.trim();
+    const show = list.length > 0 && state.category === "all" && !state.search.trim();
     wrap.hidden = !show;
-    $("#banners").innerHTML = show ? list.map(p => `<button class="banner" data-detail="${esc(p.id)}" aria-label="${esc(p.name)}"><img src="${esc(p.banner)}" alt="${esc(p.name)}" loading="lazy"></button>`).join("") : "";
+    if (bannerTimer) { clearInterval(bannerTimer); bannerTimer = null; }
+    $("#banners").innerHTML = show ? list.map((p, i) => `<button class="banner" data-detail="${esc(p.id)}" data-slide="${i}" aria-label="Ver oferta: ${esc(p.name)}" style="${i ? 'display:none' : ''}"><img src="${esc(p.banner)}" alt="${esc(p.name)}" loading="lazy"></button>`).join("") : "";
+    $("#bannerDots").innerHTML = show && list.length > 1 ? list.map((p, i) => `<button type="button" data-banner-dot="${i}" class="${i === 0 ? 'active' : ''}" aria-label="Mostrar banner ${i + 1}"></button>`).join("") : "";
+    if (show && list.length > 1) {
+      let current = 0;
+      const activate = n => {
+        const slides = [...$("#banners").querySelectorAll("[data-slide]")];
+        if (!slides.length) return;
+        current = (n + slides.length) % slides.length;
+        slides.forEach((el, i) => { el.style.display = i === current ? "block" : "none"; });
+        [...$("#bannerDots").querySelectorAll("button")].forEach((el, i) => el.classList.toggle("active", i === current));
+      };
+      $("#bannerDots").onclick = e => { const dot = e.target.closest("[data-banner-dot]"); if (dot) { activate(Number(dot.dataset.bannerDot)); start(); } };
+      const start = () => { if (bannerTimer) clearInterval(bannerTimer); bannerTimer = setInterval(() => activate(current + 1), 4500); };
+      start();
+    }
   }
 
   /* ---------- categorias (do painel) ---------- */
   function renderCategories() {
     const btn = (id, label, cls = "") => `<button class="${cls} ${state.category === id && !cls.includes("sub") ? "active" : ""}" data-cat="${esc(id)}">${esc(label)}</button>`;
-    let html = btn("all", "TODOS");
+    let html = btn("all", "Todos");
     for (const c of roots()) html += btn(c.id, c.name.toUpperCase());
     if (state.products.some(p => p.promotion || (priceInfo(p).old > 0))) html += btn("ofertas", "OFERTAS");
     const subs = state.category !== "all" && state.category !== "ofertas" ? kids(state.category) : [];
