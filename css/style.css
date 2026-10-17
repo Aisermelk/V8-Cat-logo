@@ -190,3 +190,14 @@
 @media(max-width:700px){
   .products-section .carousel-controls button{top:58px; bottom:38px; width:42px; height:auto}
 }
+
+/* Banner principal: áreas laterais invisíveis para navegar e indicadores clicáveis abaixo. */
+.banner-carousel{position:relative;isolation:isolate}
+.banner-hitarea{position:absolute;top:0;bottom:0;width:14%;z-index:10;border:0!important;padding:0!important;margin:0;background:transparent!important;box-shadow:none!important;opacity:0;cursor:pointer}
+.banner-hitarea-left{left:0}
+.banner-hitarea-right{right:0}
+.banner-hitarea:focus,.banner-hitarea:focus-visible{outline:0!important}
+.banner-dots{position:relative;z-index:11;display:flex;justify-content:center;align-items:center;gap:9px;padding:12px 0 2px;min-height:28px}
+.banner-dots button{display:block;flex:0 0 8px;width:8px;height:8px;min-width:8px;border:0;border-radius:50%;padding:0;background:#bfc5cf;opacity:1;cursor:pointer;transition:width .2s,background .2s,transform .2s}
+.banner-dots button.active{flex-basis:20px;width:20px;height:8px;border-radius:99px;background:var(--accent)}
+.banner-dots button:hover{transform:scale(1.15)}
