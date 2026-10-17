@@ -169,3 +169,24 @@
 .products.is-carousel .product:hover{transform:scale(1.025);z-index:1}
 @media(max-width:1050px){.products.is-carousel .product{flex-basis:calc((100% - 48px)/4)}}
 @media(max-width:700px){.products-section .carousel-controls button{top:48%;width:34px;height:58px;font-size:30px;border-radius:7px;background:rgba(20,24,32,.86)}.products-section .carousel-controls button:first-child{left:-5px}.products-section .carousel-controls button:last-child{right:-5px}.products.is-carousel{gap:12px;padding:6px 3px 14px}.products.is-carousel .product{flex-basis:72%;max-width:260px}.products-section .section-head-actions{flex-direction:row;align-items:center}}
+
+
+/* Navegação invisível estilo streaming: áreas clicáveis cobrem as laterais do carrossel, sem botões aparentes. */
+.products-section .carousel-controls button{
+  position:absolute; top:62px; bottom:42px; width:64px; height:auto;
+  z-index:8; padding:0; border:0; border-radius:0;
+  background:transparent!important; color:transparent!important;
+  font-size:0; line-height:0; box-shadow:none!important;
+  backdrop-filter:none; opacity:1; transform:none!important;
+}
+.products-section .carousel-controls button:first-child{left:0; right:auto}
+.products-section .carousel-controls button:last-child{right:0; left:auto}
+.products-section .carousel-controls button:hover,
+.products-section .carousel-controls button:focus,
+.products-section .carousel-controls button:active{
+  background:transparent!important; color:transparent!important; outline:none;
+}
+.products-section .carousel-controls button:focus-visible{outline:2px solid transparent}
+@media(max-width:700px){
+  .products-section .carousel-controls button{top:58px; bottom:38px; width:42px; height:auto}
+}
