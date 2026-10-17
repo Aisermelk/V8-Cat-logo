@@ -75,7 +75,7 @@
     const show = list.length > 0 && state.category === "all" && !state.search.trim();
     wrap.hidden = !show;
     if (bannerTimer) { clearInterval(bannerTimer); bannerTimer = null; }
-    $("#banners").innerHTML = show ? list.map((p, i) => `<button class="banner" data-detail="${esc(p.id)}" data-slide="${i}" aria-label="Ver oferta: ${esc(p.name)}" style="${i ? 'display:none' : ''}"><img src="${esc(p.banner)}" alt="${esc(p.name)}" loading="lazy"></button>`).join("") : "";
+    $("#banners").innerHTML = show ? list.map((p, i) => `<button class="banner" data-detail="${esc(p.id)}" data-slide="${i}" aria-label="Ver oferta: ${esc(p.name)}" style="${i ? 'display:none' : ''}"><img src="${esc(p.banner)}" alt="${esc(p.name)}" loading="lazy"></button>`).join("") + (list.length > 1 ? '<button type="button" class="banner-hitarea banner-hitarea-left" data-banner-step="-1" aria-label="Banner anterior"></button><button type="button" class="banner-hitarea banner-hitarea-right" data-banner-step="1" aria-label="Próximo banner"></button>' : '') : "";
     $("#bannerDots").innerHTML = show && list.length > 1 ? list.map((p, i) => `<button type="button" data-banner-dot="${i}" class="${i === 0 ? 'active' : ''}" aria-label="Mostrar banner ${i + 1}"></button>`).join("") : "";
     if (show && list.length > 1) {
       let current = 0;
@@ -86,8 +86,9 @@
         slides.forEach((el, i) => { el.style.display = i === current ? "block" : "none"; });
         [...$("#bannerDots").querySelectorAll("button")].forEach((el, i) => el.classList.toggle("active", i === current));
       };
-      $("#bannerDots").onclick = e => { const dot = e.target.closest("[data-banner-dot]"); if (dot) { activate(Number(dot.dataset.bannerDot)); start(); } };
       const start = () => { if (bannerTimer) clearInterval(bannerTimer); bannerTimer = setInterval(() => activate(current + 1), 4500); };
+      $("#bannerDots").onclick = e => { const dot = e.target.closest("[data-banner-dot]"); if (dot) { activate(Number(dot.dataset.bannerDot)); start(); } };
+      $("#banners").onclick = e => { const hit = e.target.closest("[data-banner-step]"); if (hit) { e.preventDefault(); e.stopPropagation(); activate(current + Number(hit.dataset.bannerStep)); start(); } };
       start();
     }
   }
