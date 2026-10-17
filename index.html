@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Catálogo online</title>
+  <meta name="description" content="Explore produtos, adicione ao carrinho e faça seu pedido online.">
+  <meta name="theme-color" content="#111111">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="topbar"><div class="container"><span>CATÁLOGO ONLINE</span><span data-v8="content.headline">Escolha seus produtos com facilidade</span></div></div>
+
+  <header class="header">
+    <div class="container header-row">
+      <a class="brand-slot" href="./" aria-label="Página inicial">
+        <img src="assets/logo.svg" alt="Logo da loja" onerror="this.hidden=true">
+      </a>
+      <div class="search"><input id="search" type="search" placeholder="O que você procura?"><button id="searchBtn" aria-label="Buscar">⌕</button></div>
+      <button class="cart-button" id="openCart">🛒 <span>Carrinho</span><strong id="cartCount">0</strong></button>
+    </div>
+    <nav class="nav" aria-label="Categorias"><div class="container" id="categories"></div></nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-content">
+        <span class="eyebrow">VITRINE ONLINE</span>
+        <h1>Encontre o que<br><b>você procura.</b></h1>
+        <p data-v8="content.description">Explore nosso catálogo, escolha seus produtos e faça seu pedido de forma simples e rápida.</p>
+        <a href="#produtos" class="btn primary">Ver produtos</a>
+      </div>
+    </section>
+
+    <section class="benefits"><div class="container benefits-grid">
+      <div><b>Compra fácil</b><span>Escolha seus produtos</span></div>
+      <div><b>Atendimento direto</b><span>Fale com a loja</span></div>
+      <div><b>Catálogo atualizado</b><span>Veja produtos e preços</span></div>
+      <div><b>Formas de pagamento</b><span id="payInfo">Consulte as opções</span></div>
+    </div></section>
+
+    <section class="banners" id="bannersWrap" hidden><div class="container"><div class="banner-row" id="banners"></div></div></section>
+
+    <section class="section" id="produtos">
+      <div class="container">
+        <div class="section-head"><div><span class="eyebrow">CATÁLOGO</span><h2 id="listTitle">Produtos</h2></div><span id="resultCount"></span></div>
+        <div id="products" class="products"><div class="loading">Carregando catálogo...</div></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer"><div class="container footer-row">
+    <div><strong>Catálogo online</strong><p>Consulte os produtos e entre em contato para fazer seu pedido.</p></div>
+    <div><span>Atendimento</span><a data-v8="contact.whatsapp" target="_blank" rel="noopener">WhatsApp</a></div>
+    <div><a data-v8="social.instagram" target="_blank" rel="noopener">Instagram</a><small>© <span id="year"></span></small></div>
+  </div></footer>
+
+  <a class="whatsapp" data-v8-href="contact.whatsapp" target="_blank" rel="noopener" aria-label="Falar pelo WhatsApp">◉</a>
+
+  <div class="overlay" id="overlay" hidden></div>
+  <aside class="drawer" id="cartDrawer" aria-label="Carrinho" hidden>
+    <div class="drawer-head"><h2>Seu carrinho</h2><button id="closeCart" aria-label="Fechar">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-footer"><div><span>Total</span><strong id="cartTotal">R$ 0,00</strong></div><button id="checkout" class="btn primary">Continuar pedido</button><p class="note" id="cartNote"></p></div>
+  </aside>
+
+  <dialog id="productDialog" class="product-dialog">
+    <button class="dialog-close" id="closeProduct" aria-label="Fechar">×</button>
+    <div id="productDetail"></div>
+  </dialog>
+
+  <!-- Insira o ID do projeto no V8 Admin Universal. O V8 Loader conecta os dados do catálogo. -->
+  <script src="js/v8-loader.js" data-project-id="ID_DO_PROJETO" data-catalog="true" defer></script>
+  <script src="js/app.js" defer></script>
+</body>
+</html>
